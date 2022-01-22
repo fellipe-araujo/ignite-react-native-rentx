@@ -1,5 +1,5 @@
 import React from 'react';
-import { useWindowDimensions } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 import { ConfirmButton } from '../../components/ConfirmButton';
 
@@ -10,6 +10,12 @@ import { Container, Content, Title, Message, Footer } from './styles';
 
 export function SchedulingComplete() {
   const { width } = useWindowDimensions();
+
+  const navigation = useNavigation();
+
+  function handleConfirmRental() {
+    navigation.navigate('Home');
+  }
   
   return (
     <Container>
@@ -27,7 +33,7 @@ export function SchedulingComplete() {
       </Content>
 
       <Footer>
-        <ConfirmButton title="OK" />
+        <ConfirmButton title="OK" onPress={handleConfirmRental} />
       </Footer>
     </Container>
   );
