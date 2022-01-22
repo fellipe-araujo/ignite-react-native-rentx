@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { useWindowDimensions, StatusBar } from 'react-native';
 
 import { ConfirmButton } from '../../components/ConfirmButton';
 
@@ -19,6 +20,12 @@ export function SchedulingComplete() {
   
   return (
     <Container>
+      <StatusBar
+        barStyle="light-content"
+        translucent
+        backgroundColor="transparent"      
+      />
+
       <LogoSvg width={width} />
 
       <Content>
