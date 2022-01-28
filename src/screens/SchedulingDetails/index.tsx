@@ -83,15 +83,23 @@ export function SchedulingDetails() {
       ),
     });
 
-    api.put(`/schedules_bycars/${car.id}`, {
-      id: car.id,
-      unavailable_dates,
-    })
-    .then(() => navigation.navigate('SchedulingComplete'))
-    .catch(() => {
-      setLoading(false);
-      Alert.alert('Não foi possível confirmar o agendamento.')
-    });
+    api
+      .put(`/schedules_bycars/${car.id}`, {
+        id: car.id,
+        unavailable_dates,
+      })
+      .then(() => {
+        navigation.navigate('Confirmation', {
+          title: 'Carro alugado!',
+          message:
+            'Agora você só precisa ir\naté a concessonária da RENTEX\npegar o seu automóvel.',
+          nextScreenRoute: 'Home',
+        });
+      })
+      .catch(() => {
+        setLoading(false);
+        Alert.alert('Não foi possível confirmar o agendamento.');
+      });
   }
 
   function handleBack() {
