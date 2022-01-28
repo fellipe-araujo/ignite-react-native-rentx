@@ -22,6 +22,7 @@ import {
   Form,
   FormTitle,
 } from './styles';
+import { api } from '../../../services/api';
 
 interface Params {
   user: {
@@ -41,7 +42,7 @@ export function SignUpSecondStep() {
 
   const { user } = route.params as Params;
 
-  function handleRegister() {
+  async function handleRegister() {
     if (!password || !passwordConfirm) {
       return Alert.alert('Informe a senha e a sua confirmação');
     }
@@ -50,11 +51,23 @@ export function SignUpSecondStep() {
       return Alert.alert('As senhas não são iguais');
     }
 
-    navigation.navigate('Confirmation', {
-      title: 'Conta Criada!',
-      message: 'Agora é só fazer login\ne aproveitar.',
-      nextScreenRoute: 'SignIn',
-    });
+    await api
+      .post('/users', {
+        name: user.name,
+        email: user.email,
+        driver_license: user.driverLicense,
+        password,
+      })
+      .then(() => {
+        navigation.navigate('Confirmation', {
+          title: 'Conta Criada!',
+          message: 'Agora é só fazer login\ne aproveitar.',
+          nextScreenRoute: 'SignIn',
+        });
+      })
+      .catch(() => {
+        Alert.alert('Opa', 'Não foi possível cadastrar');
+      });
   }
 
   function handleBack() {
