@@ -9,6 +9,12 @@
     "splash": {
       "image": "./assets/splash.png",
       "backgroundColor": "#1B1B1F"
+    },
+    "android": {
+      "package": "com.fellipearaujo.rentx"
+    },
+    "ios": {
+      "bundleIdentifier": "com.fellipearaujo.rentx"
     }
   },
   "name": "rentx"
