@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { StatusBar } from 'react-native';
+import { Alert, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { useNetInfo } from '@react-native-community/netinfo';
 
 import { CarDTO } from '../../dtos/CarDTO';
 import { api } from '../../services/api';
@@ -17,6 +18,7 @@ export function Home() {
   const [cars, setCars] = useState<CarDTO[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const netInfo = useNetInfo();
   const navigation = useNavigation();
 
   function handleCarDetails(car: CarDTO) {
@@ -47,6 +49,16 @@ export function Home() {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (netInfo.isConnected === true) {
+      Alert.alert('Você está Online!');
+      console.log(netInfo.isConnected);
+    } else if (netInfo.isConnected === false) {
+      Alert.alert('Você está Offline!');
+      console.log(netInfo.isConnected);
+    }
+  }, [netInfo.isConnected]);
 
   return (
     <Container>
