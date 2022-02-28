@@ -10,6 +10,7 @@ import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useTheme } from 'styled-components';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { useNetInfo } from '@react-native-community/netinfo';
 import * as Yup from 'yup';
 
 import { BackButton } from '../../components/BackButton';
@@ -44,13 +45,21 @@ export function Profile() {
 
   const navigation = useNavigation();
   const theme = useTheme();
+  const netInfo = useNetInfo();
 
   function handleBack() {
     navigation.goBack();
   }
 
   function handleOptionChange(optionSelected: 'dataEdit' | 'passwordEdit') {
-    setOption(optionSelected);
+    if (netInfo.isConnected === false && optionSelected === 'passwordEdit') {
+      Alert.alert(
+        'Você está Offline',
+        'Para mudar a senha, conecte-se a Internet'
+      );
+    } else {
+      setOption(optionSelected);
+    }
   }
 
   async function handleSelectAvatar() {
