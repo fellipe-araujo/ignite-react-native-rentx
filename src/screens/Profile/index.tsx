@@ -38,9 +38,9 @@ export function Profile() {
   const { user, signOut, updateUser } = useAuth();
 
   const [option, setOption] = useState<'dataEdit' | 'passwordEdit'>('dataEdit');
-  const [avatar, setAvatar] = useState(user?.avatar);
-  const [name, setName] = useState(user?.name);
-  const [driverLicense, setDriverLicense] = useState(user?.driver_license);
+  const [avatar, setAvatar] = useState(user!.avatar);
+  const [name, setName] = useState(user!.name);
+  const [driverLicense, setDriverLicense] = useState(user!.driver_license);
 
   const navigation = useNavigation();
   const theme = useTheme();
@@ -100,9 +100,9 @@ export function Profile() {
         id: user!.id,
         user_id: user!.user_id,
         email: user!.email,
-        name: user!.name,
+        name,
         driver_license: driverLicense!,
-        avatar: avatar!,
+        avatar,
         token: user!.token,
       });
 

@@ -6,7 +6,7 @@ import React, {
   useEffect,
 } from 'react';
 import { database } from '../database';
-import { User as ModelUser } from '../database/models/user';
+import { User as ModelUser } from '../database/models/User';
 import { api } from '../services/api';
 
 interface User {
@@ -29,6 +29,7 @@ interface AuthContextData {
   signIn: (credentials: SignInCredentials) => Promise<void>;
   signOut: () => Promise<void>;
   updateUser: (user: User) => Promise<void>;
+  loading: boolean;
 }
 
 interface AuthProviderProps {
@@ -39,6 +40,7 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 function AuthProvider({ children }: AuthProviderProps) {
   const [data, setData] = useState<User>({} as User);
+  const [loading, setLoading] = useState(true);
 
   async function signIn({ email, password }: SignInCredentials) {
     try {
@@ -88,6 +90,7 @@ function AuthProvider({ children }: AuthProviderProps) {
       const userCollection = database.get<ModelUser>('users');
       await database.write(async () => {
         const userSelected = await userCollection.find(user.id);
+        console.log('user selected', userSelected);
         await userSelected.update((userData) => {
           userData.name = user.name,
           userData.driver_license = user.driver_license,
@@ -113,13 +116,16 @@ function AuthProvider({ children }: AuthProviderProps) {
         ] = `Bearer ${userData.token}`;
         setData(userData);
       }
+      setLoading(false);
     }
 
     loadUserData();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user: data, signIn, signOut, updateUser }}>
+    <AuthContext.Provider
+      value={{ user: data, signIn, signOut, updateUser, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );
