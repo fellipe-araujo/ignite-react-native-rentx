@@ -3,8 +3,12 @@ import { Alert, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useNetInfo } from '@react-native-community/netinfo';
+import { synchronize } from '@nozbe/watermelondb/sync';
+import { database } from '../../database';
 
 import { CarDTO } from '../../dtos/CarDTO';
+import { Car as ModelCar } from '../../database/models/Car';
+import { User as ModelUser } from '../../database/models/User';
 import { api } from '../../services/api';
 
 import { Car } from '../../components/Car';
@@ -15,7 +19,7 @@ import Logo from '../../assets/logo.svg';
 import { Container, Header, HeaderContent, TotalCars, CarList } from './styles';
 
 export function Home() {
-  const [cars, setCars] = useState<CarDTO[]>([]);
+  const [cars, setCars] = useState<ModelCar[]>([]);
   const [loading, setLoading] = useState(true);
 
   const netInfo = useNetInfo();
@@ -25,14 +29,38 @@ export function Home() {
     navigation.navigate('CarDetails', { car });
   }
 
+  async function offlineSynchronize() {
+    await synchronize({
+      database,
+      pullChanges: async ({ lastPulledAt }) => {
+        const response = await api.get(
+          `cars/sync/pull?lastPulledVersion=${lastPulledAt || 0}`
+        );
+        const { changes, latestVersion } = response.data;
+        console.log("##### SINCRONIZAÇÃO #####");
+        console.log(changes);
+        console.log("##### LATEST VERSION #####");
+        console.log(latestVersion);
+
+        return { changes, timestamp: latestVersion };
+      },
+      pushChanges: async ({ changes }) => {
+        const user = changes.users;
+        await api.post('/users/sync', user).catch(console.log)
+      },
+    });
+  }
+
   useEffect(() => {
     let isMounted = true;
 
     async function fetchCars() {
       try {
-        const response = await api.get('/cars');
+        const carCollection = database.get<ModelCar>('cars');
+        const carFetched = await carCollection.query().fetch();
+
         if (isMounted) {
-          setCars(response.data);
+          setCars(carFetched);
         }
       } catch (error) {
         console.log(error);
@@ -51,12 +79,8 @@ export function Home() {
   }, []);
 
   useEffect(() => {
-    if (netInfo.isConnected === true) {
-      Alert.alert('Você está Online!');
-      console.log(netInfo.isConnected);
-    } else if (netInfo.isConnected === false) {
-      Alert.alert('Você está Offline!');
-      console.log(netInfo.isConnected);
+    if (netInfo.isConnected) {
+      offlineSynchronize();
     }
   }, [netInfo.isConnected]);
 
